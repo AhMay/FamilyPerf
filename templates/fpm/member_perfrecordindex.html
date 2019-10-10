@@ -1,0 +1,43 @@
+{% extends 'fpm/dashboard.html' %}
+
+{% block nav %}
+        <li ><a href="{% url 'fpm:family_index' %}">Overview</a></li>
+        <li><a href="{% url 'fpm:perfitems_index' %}">成员绩效项目</a></li>
+        <li  class="active"><a href="{% url 'fpm:perfrecords_index' %}">成员绩效表<span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Export</a></li>
+{% endblock %}
+ {% block right-content-container %}
+    <h2 class="page-header">{{ request.user.userprofile.family.name}}成员积分单索引页面</h2>
+     <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                     {% for member in request.user.userprofile.family.memberinfo_set.all  %}
+                    <th>{{ member.name }}</th>
+                     {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% if not hasToday %}
+                <tr>
+                    <td>{{ today |date:'Y-m-j' }}</td>
+                    {% for member in request.user.userprofile.family.memberinfo_set.all  %}
+                    <td><a href="{% url 'fpm:member_perfrecords' today.year today.month today.day member.id %}">查看</a></td>
+                    {% endfor %}
+                </tr>
+            {% endif %}
+                {% for day in days %}
+                    <tr>
+                        <td>{{ day |date:"Y-m-j"}}</td>
+                        {% for member in request.user.userprofile.family.memberinfo_set.all  %}
+                        <td><a href="{% url 'fpm:member_perfrecords' day.year day.month day.day member.id %}">查看</a></td>
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+ {% endblock %}
+
+ {% block extra-js %}
+
+ {% endblock %}

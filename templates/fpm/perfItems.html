@@ -1,0 +1,32 @@
+{#templates/crm/dashboard.html#}
+
+{% extends 'fpm/dashboard.html' %}
+
+{% block nav %}
+        <li ><a href="{% url 'fpm:family_index' %}">Overview</a></li>
+        <li class="active"><a href="{% url 'fpm:perfitems_index' %}">成员绩效项目 <span class="sr-only">(current)</span></a></li>
+        <li><a href="{% url 'fpm:perfrecords_index' %}">成员绩效表</a></li>
+        <li><a href="#">Export</a></li>
+       {% endblock %}
+
+ {% block right-content-container %}
+        <h2 class="page-header">{{ request.user.userprofile.family.name }}成员绩效项目页面</h2>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>成员名</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in request.user.userprofile.family.memberinfo_set.all  %}
+                    <tr>
+                        <td><a href="{% url 'fpm:member_perfitems' member.id %}">{{ member.name }}</a></td>
+                        <td>添加</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+ {% endblock %}

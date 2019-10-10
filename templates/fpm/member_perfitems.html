@@ -1,0 +1,123 @@
+{% extends 'fpm/perfitems.html' %}
+
+{% block extra-css %}
+    <style>
+        .hide{
+            display:none;
+        }
+
+    </style>
+{% endblock %}
+
+ {% block right-content-container %}
+    <h2 class="page-header">{{ member.name }}绩效项目页面</h2>
+    <div>
+        <a href="#" class="btn btn-info" id="perfitem-btnadd">添加</a>
+        <div id="perfitem-form" class="hide" >
+            <form class="form-inline" method="post" action="{% url 'fpm:member_perfitems_add' member.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">项目名</label>
+                    <input type="text" class="form-control" id="id_name" name="name" >
+                </div>
+                <div class="form-group">
+                    <label for="id_score_up">得分</label>
+                    <input type="number" min="0" class="form-control" id="id_score_up" name="score_up" >
+                </div>
+                <div class="form-group">
+                    <label for="id_score_down">减分</label>
+                    <input type="number" class="form-control" max="0" id="id_score_down" name="score_down" >
+                </div>
+                <div class="form-group">
+                   <label for="id_active">状态</label>
+                   <input type="checkbox" name="active" id="id_active" checked="">
+                </div>
+                 <button type="submit" class="btn btn-default" id="perfitem-savebtn">保存</button>
+            </form>
+        </div>
+        <table class="table table-striped " id="perfitem-table">
+            <thead>
+                <tr>
+                    <th>项目名</th>
+                    <th>做了得分</th>
+                    <th>不做减分</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in perfitems  %}
+                    <tr>
+                        <td>{{item.name}}</td>
+                        <td>{{item.score_up}}</td>
+                        <td>{{item.score_down}}</td>
+                        <td>{% if item.active %}活动{% else %}停用 {% endif %}</td>
+                        <td data-id="{{item.id}}" >
+                            <a  href="#" class="edit btn btn-default">编辑</a>
+                            <a href="{% url 'fpm:member_perfitems_delete' item.id %}"  class="del btn btn-danger">删除</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+ {% endblock %}
+
+ {% block extra-js %}
+    <script>
+        var csrftoken = $.cookie('csrftoken');
+        function csrfSafeMethod(method){
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        function perfitem_change (){
+            var that = event.currentTarget;
+            var tr_element = $(that).parent().parent();
+            var id = $(that).parent().data("id");
+            var form_data ={
+                'name':tr_element.find('input[name="name"]').first().val(),
+                'score_up':tr_element.find('input[name="score_up"]').first().val(),
+                'score_down':tr_element.find('input[name="score_down"]').first().val(),
+                'active':tr_element.find('input[name="active"]').first().val(),
+            };
+            $.ajax({
+                url: '/family/perfitems/'+ id +'/update/',
+                data:form_data,
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function(xhr,settings){
+                    if(!csrfSafeMethod(settings.type) && !this.crossDomain){
+                        xhr.setRequestHeader("X-CSRFToken",csrftoken);
+                    }},
+                complete: function(xhr,status){
+                    window.location.reload();
+                },
+            });//ajax
+        }
+
+        $(document).ready(function(){
+            $('#perfitem-btnadd').on('click', function(e){
+                e.preventDefault();
+                $("#perfitem-form").toggleClass("hide");
+            }); // # add perfitem action
+        });
+        $(".edit").on('click', function(e){
+           var $action_td = $(e.target).parent();
+           var $tds = $($action_td).siblings();
+           //换成 编辑模式
+           var  $td_name_element ='<input type="text" class="form-control" id="id_name" name="name" ' + 'value="' + $($tds[0]).text() + '" >';
+           var $td_scoreup_element =' <input type="number" min="0" class="form-control" id="id_score_up" name="score_up" ' + 'value="' + $($tds[1]).text() + '" >';
+           var $td_scoredown_element ='<input type="number" class="form-control" max="0" id="id_score_down" name="score_down"  ' + 'value="' + $($tds[2]).text() + '" >';
+           if($($tds[3]).text()=="活动"){
+                var $td_active_element ='<input type="checkbox" name="active" id="id_active" checked="">';
+            }else {
+               var $td_active_element ='<input type="checkbox" name="active" id="id_active">';
+            }
+            $($tds[0]).html($td_name_element);
+            $($tds[1]).html($td_scoreup_element);
+            $($tds[2]).html($td_scoredown_element);
+            $($tds[3]).html($td_active_element);
+            $($action_td).html('<button type="submit" class="btn btn-default perfitem-change" onclick="perfitem_change()">保存</button>')
+            //发送编辑请求
+        });// edit perfitem
+    </script>
+ {% endblock %}

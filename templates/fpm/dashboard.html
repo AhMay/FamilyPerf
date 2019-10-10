@@ -1,0 +1,5 @@
+{#templates/crm/dashboard.html#}
+
+{% extends 'index.html' %}
+
+{% block pro_name %}{{ request.user.userprofile.family.name }}绩效管理{% endblock %}

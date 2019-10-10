@@ -1,0 +1,25 @@
+{% extends 'fpm/dashboard.html' %}
+
+{% block extra-css %}
+    <style>
+        .hide{
+            display:none;
+        }
+
+    </style>
+{% endblock %}
+
+{% block nav %}
+        <li ><a href="#">Overview</a></li>
+        <li class="active"><a href="{% url 'fpm:perfitems_index' %}">成员绩效项目 <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Analytics</a></li>
+        <li><a href="#">Export</a></li>
+{% endblock %}
+ {% block right-content-container %}
+    <h2 class="page-header">{{ member.name }}绩效项目页面</h2>
+   <form method="post">
+       {% csrf_token %}
+    <p>你确定要删除 {{perfitem}}?</p>
+    <input type="submit" value="确定">
+</form>
+ {% endblock %}

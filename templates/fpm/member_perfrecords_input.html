@@ -1,0 +1,167 @@
+{% extends 'fpm/member_perfrecordindex.html' %}
+{% block extra-css %}
+    <style>
+        .hide{
+            display:none;
+        }
+
+    </style>
+{% endblock %}
+{% block right-content-container %}
+     <h2 class="page-header">{{ member.name }} {{day|date:"Y-m-d"}} 积分情况</h2>
+    <div>
+        <table class="table table-bordered">
+        <caption>积分结果信息</caption>
+        <thead>
+            <tr>
+                <th>最近积分日期</th>
+                <th>最近积分</th>
+                <th>今日得分</th>
+                <th>今日累积得分</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {% if sum_result_obj.pre_day %}
+                    <a href="{% url 'fpm:member_perfrecords' sum_result_obj.pre_day.day.year sum_result_obj.pre_day.day.month sum_result_obj.pre_day.day.day  member.id %}">
+                    {{sum_result_obj.pre_day.day |date:"Y-m-j"}}
+                    </a>
+                    {% else %} 没有上条记录 {% endif %}
+                </td>
+                <td>{{sum_result_obj.pre_sum}}</td>
+                <td>{% if sum_result_obj.cur_day %}{{sum_result_obj.cur_day.score }}{% else %} 0 {% endif %} </td>
+                <td>{% if sum_result_obj.cur_day %}{{sum_result_obj.cur_day.score_sum }}{% else %} 0 {% endif %} </td>
+            </tr>
+        </tbody>
+    </table>
+        <button class="btn btn-info" id="btn-record-add">添加临时项</button>
+        <div id="record-form" class="hide" >
+             <form class="form-inline" method="post">
+                 <div class="form-group">
+                    <label for="id_name">项目名</label>
+                    <input type="text" class="form-control" id="id_name" name="name" required >
+                </div>
+                 <div class="form-group">
+                    <label for="id_score_up">加分</label>
+                    <input type="number" min="0" class="form-control" id="id_score_up" name="score_up" required >
+                </div>
+                <div class="form-group">
+                    <label for="id_score_down">减分</label>
+                    <input type="number" class="form-control" max="0" id="id_score_down" name="score_down" required >
+                </div>
+                <div class="form-group">
+                   <label for="id_active">永久</label>
+                   <input type="checkbox" name="active" id="id_active" checked="">
+                </div>
+                 <div class="form-group">
+                    <label for="id_score">本次得分</label>
+                    <input type="text" class="form-control" id="id_score" name="score" required >
+                </div>
+                 <div class="form-group">
+                    <label for="id_desc">备注</label>
+                    <input type="text" class="form-control" id="id_desc" name="desc" >
+                </div>
+                 <button type="submit" class="btn btn-warning" id="record-savebtn">添加</button>
+             </form>
+        </div>
+        <table class="table table-striped " id="record_table">
+            <thead>
+                <tr>
+                    <th>项目名</th>
+                    <th>做了加分</th>
+                    <th>不做减分</th>
+                    <th>得分</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                <form method="post" action="{% url 'fpm:member_perfrecords' day.year day.month day.day member.id %}">
+                    {% csrf_token %}
+                   <button type="submit" class="btn btn-primary">保存</button>
+                    <tr>
+                        <td colspan="5"><input type="text" name="result_desc" placeholder="请输入总评价"></td>
+                    </tr>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>
+                            <input type="radio"  name="{{item.id}}_score" value="{{ item.score_up }}" checked  > {{ item.score_up }}
+                        </td>
+                        <td>
+                            <input type="radio"  name="{{item.id}}_score" value="{{ item.score_down }}"> {{ item.score_down }}
+                        </td>
+                        <td>0</td>
+                        <td><input type="text"  name="{{item.id}}_desc" placeholder="如果有备注,填这里"></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">{{member.name }}没有任何活动的绩效项，请先<a href="{% url 'fpm:member_perfitems_add' member.id %}">添加绩效</a> </td>
+                    </tr>
+                {% endfor %}
+                </form>
+            </tbody>
+     </table>
+    </div>
+{% endblock %}
+
+{% block extra-js %}
+    <script>
+        var csrftoken = $.cookie('csrftoken');
+        function csrfSafeMethod(method){
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        String.format = function() {
+    if( arguments.length == 0 )
+        return null;
+
+    var str = arguments[0];
+    for(var i=1;i<arguments.length;i++) {
+        var re = new RegExp('\\{' + (i-1) + '\\}','gm');
+        str = str.replace(re, arguments[i]);
+    }
+    return str;
+}
+
+        $(document).ready(function(){
+            $('#btn-record-add').on('click',function(e){
+                e.preventDefault();
+                $("#record-form").toggleClass("hide");
+            }); // show record add
+
+            $('#record-savebtn').on('click',function(e){
+                 e.preventDefault();
+                 form = $(this).parents('form');
+                 score_up = form.find("input[name='score_up']").val();
+                 score_down=form.find("input[name='score_down']").val();
+                 score =form.find("input[name='score']").val();
+                 if(score != score_up && score != score_down){
+                    alert("本次得分的值必须和加分或减分一致!");
+                 }
+                  $.ajax({
+                url: "{% url 'fpm:member_perfrecords_add' day.year day.month day.day member.id %}",
+                data:form.serialize(),
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function(xhr,settings){
+                    if(!csrfSafeMethod(settings.type) && !this.crossDomain){
+                        xhr.setRequestHeader("X-CSRFToken",csrftoken);
+                    }},
+                success: function(data){
+                    if(data['status'] =='fail'){
+                        alert(data['msg']);
+                    }else if(data['status'] =='ok'){
+                        var record_ele = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td>";
+                        record_ele = String.format(record_ele,data['item_name'],
+                        data['item_scoreup'],data['item_scoredown'],data['score'],data['desc']);
+                         console.log(record_ele)
+                        $('#record_table tbody').append(record_ele);
+                         $("#record-form").toggleClass("hide");
+                    }
+                },
+            });//ajax
+            });// submit
+            });//ready
+    </script>
+ {% endblock %}

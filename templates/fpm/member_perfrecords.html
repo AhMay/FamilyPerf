@@ -1,0 +1,60 @@
+{% extends 'fpm/member_perfrecordindex.html' %}
+{% block right-content-container %}
+     <h2 class="page-header">{{ member.name }} {{day|date:"Y-m-d"}} 积分情况</h2>
+      <table class="table table-bordered">
+        <caption>积分结果信息</caption>
+        <thead>
+            <tr>
+                <th>最近积分日期</th>
+                <th>最近积分</th>
+                <th>今日得分</th>
+                <th>今日累积得分</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {% if sum_result_obj.pre_day %}
+                    <a href="{% url 'fpm:member_perfrecords' sum_result_obj.pre_day.day.year sum_result_obj.pre_day.day.month sum_result_obj.pre_day.day.day  member.id %}">
+                    {{sum_result_obj.pre_day.day |date:"Y-m-j"}}
+                    </a>
+                    {% else %} 没有上条记录 {% endif %}
+                </td>
+                <td>{{sum_result_obj.pre_sum}}</td>
+                <td>{% if sum_result_obj.cur_day %}{{sum_result_obj.cur_day.score }}{% else %} 0 {% endif %} </td>
+                <td>{% if sum_result_obj.cur_day %}{{sum_result_obj.cur_day.score_sum }}{% else %} 0 {% endif %} </td>
+            </tr>
+            <tr>
+                <td>今日点评</td>
+                <td colspan="3">{% if sum_result_obj.cur_day %}{{sum_result_obj.cur_day.description }} {% endif %} </td>
+            </tr>
+        </tbody>
+    </table>
+
+      <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th>项目名</th>
+                    <th>做了加分</th>
+                    <th>不做减分</th>
+                    <th>得分</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for record in records %}
+                <tr>
+                    <td>{{record.item.name}}</td>
+                     <td>{{record.item.score_up }}</td>
+                     <td>{{record.item.score_down }}</td>
+                     <td>{{record.score}}</td>
+                     <td>{{record.description}}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                    <td colspan="4">这天你没有绩效积分哦！</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+     </table>
+{% endblock %}

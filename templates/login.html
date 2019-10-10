@@ -1,0 +1,28 @@
+{#templates/login.html#}
+{% extends 'index.html' %}
+{% load staticfiles %}
+
+{% block extra-css %}
+    <link rel="stylesheet" href="{% static 'css/signIn.css' %}">
+{% endblock %}
+
+{% block body %}
+ <div class="container">
+      <form class="form-signin" method="post">
+          {% csrf_token %}
+        <h2 class="form-signin-heading">家庭绩效管理</h2>
+        <label for="username" class="sr-only">用户名</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="用户名" required autofocus>
+        <label for="inputPassword" class="sr-only">密码</label>
+        <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码" required>
+        <span style="color: red">{{ error_msg }}</span>
+
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> 记住我
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+      </form>
+ </div> <!-- /container -->
+{% endblock %}

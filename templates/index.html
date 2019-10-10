@@ -1,0 +1,52 @@
+{#templates/index.html#}
+{% extends 'base.html' %}
+
+{% block body %}
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">{% block pro_name %}Project name{% endblock %}</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown ">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">{{ request.user }} <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">个人信息</a></li>
+                            <li><a href="{% url 'fpm:family_logout' %}">登出</a></li>
+                        </ul>
+                    </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar">
+       {% block nav %}
+        <li class="active"><a href="{% url 'fpm:family_index' %}">Overview <span class="sr-only">(current)</span></a></li>
+        <li><a href="{% url 'fpm:perfitems_index' %}">成员绩效项目</a></li>
+         <li><a href="{% url 'fpm:perfrecords_index' %}">成员绩效表</a></li>
+        <li><a href="#">Export</a></li>
+       {% endblock %}
+      </ul>
+
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+       {% block right-content-container %}
+                <h2 class="page-header">Dashboard</h2>
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
