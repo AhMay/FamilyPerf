@@ -74,11 +74,12 @@
             var tr_element = $(that).parent().parent();
             var id = $(that).parent().data("id");
             var form_data ={
-                'name':tr_element.find('input[name="name"]').first().val(),
-                'score_up':tr_element.find('input[name="score_up"]').first().val(),
-                'score_down':tr_element.find('input[name="score_down"]').first().val(),
-                'active':tr_element.find('input[name="active"]').first().val(),
+                'name':tr_element.find('input[name="edit_name"]').first().val(),
+                'score_up':tr_element.find('input[name="edit_score_up"]').first().val(),
+                'score_down':tr_element.find('input[name="edit_score_down"]').first().val(),
+                'active':tr_element.find('input[name="edit_active"]').is(':checked')
             };
+            console.log(form_data);
             $.ajax({
                 url: '/family/perfitems/'+ id +'/update/',
                 data:form_data,
@@ -104,19 +105,20 @@
            var $action_td = $(e.target).parent();
            var $tds = $($action_td).siblings();
            //换成 编辑模式
-           var  $td_name_element ='<input type="text" class="form-control" id="id_name" name="name" ' + 'value="' + $($tds[0]).text() + '" >';
-           var $td_scoreup_element =' <input type="number" min="0" class="form-control" id="id_score_up" name="score_up" ' + 'value="' + $($tds[1]).text() + '" >';
-           var $td_scoredown_element ='<input type="number" class="form-control" max="0" id="id_score_down" name="score_down"  ' + 'value="' + $($tds[2]).text() + '" >';
+           var  $td_name_element ='<input type="text" class="form-control" id="id_edit_name" name="edit_name" ' + 'value="' + $($tds[0]).text() + '" >';
+           var $td_scoreup_element =' <input type="number" min="0" class="form-control" id="id_edit_score_up" name="edit_score_up" ' + 'value="' + $($tds[1]).text() + '" >';
+           var $td_scoredown_element ='<input type="number" class="form-control" max="0" id="id_edit_score_down" name="edit_score_down"  ' + 'value="' + $($tds[2]).text() + '" >';
            if($($tds[3]).text()=="活动"){
-                var $td_active_element ='<input type="checkbox" name="active" id="id_active" checked="">';
+                var $td_active_element ='<input type="checkbox" name="edit_active" id="id_edit_active" checked="">';
             }else {
-               var $td_active_element ='<input type="checkbox" name="active" id="id_active">';
+               var $td_active_element ='<input type="checkbox" name="edit_active" id="id_edit_active">';
             }
+
             $($tds[0]).html($td_name_element);
             $($tds[1]).html($td_scoreup_element);
             $($tds[2]).html($td_scoredown_element);
             $($tds[3]).html($td_active_element);
-            $($action_td).html('<button type="submit" class="btn btn-default perfitem-change" onclick="perfitem_change()">保存</button>')
+            $($action_td).html('<button type="button" class="btn btn-default perfitem-change" onclick="perfitem_change()">保存</button>')
             //发送编辑请求
         });// edit perfitem
     </script>
